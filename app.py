@@ -81,3 +81,14 @@ def get_photos():
     session.close()
 
     return jsonify({"photos": [p.url for p in photos]})
+
+
+# -------------------------
+# Debug Routes
+# -------------------------
+@app.route("/debug/photos", methods=["GET"])
+def debug_photos():
+    session = SessionLocal()
+    count = session.query(Photo).count()
+    session.close()
+    return jsonify({"count": count})
