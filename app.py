@@ -30,7 +30,7 @@ def upload_photo():
     file = request.files["file"]
 
     # Upload to Cloudinary
-    upload_result = cloudinary.uploader.upload(file)
+    upload_result = cloudinary.uploader.upload(file, format="jpg")
 
     return jsonify(
         {"message": "Upload successful", "image_url": upload_result["secure_url"]}
