@@ -73,12 +73,31 @@ def upload_photo():
 
     # Save URL to database
     session = SessionLocal()
-    new_photo = Photo(url=image_url)
+    title = request.form.get("title")
+    caption = request.form.get("caption")
+    date = request.form.get("date")
+
+    new_photo = Photo(url=image_url, title=title, caption=caption, date=date)
     session.add(new_photo)
     session.commit()
-    session.close()
+    # Fetch updated list of photos
+    photos = session.query(Photo).order_by(Photo.id.desc()).all()
 
-    return jsonify({"message": "Upload successful", "image_url": image_url})
+    return jsonify(
+        {
+            "photos": [
+                {
+                    "id": p.id,
+                    "url": p.url,
+                    "title": p.title,
+                    "caption": p.caption,
+                    "date": p.date,
+                    "upload_time": p.upload_time.isoformat() if p.upload_time else None,
+                }
+                for p in photos
+            ]
+        }
+    )
 
 
 @app.route("/photos", methods=["GET"])
