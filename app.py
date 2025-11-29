@@ -3,6 +3,7 @@ from flask_cors import CORS
 import cloudinary
 import cloudinary.uploader
 import os
+from helper import extract_public_id
 from dotenv import load_dotenv
 
 from sqlalchemy import create_engine, Column, Integer, String
@@ -80,7 +81,29 @@ def get_photos():
     photos = session.query(Photo).order_by(Photo.id.desc()).all()
     session.close()
 
-    return jsonify({"photos": [p.url for p in photos]})
+    return jsonify({"photos": [{"id": p.id, "url": p.url} for p in photos]})
+
+
+@app.route("/photo/<int:photo_id>", methods=["DELETE"])
+def delete_photo(photo_id):
+    session = SessionLocal()
+    photo = session.query(Photo).filter_by(id=photo_id).first()
+
+    if not photo:
+        session.close()
+        return jsonify({"error": "Photo not found"}), 404
+
+    public_id = extract_public_id(photo.url)
+
+    # Delete from Cloudinary
+    cloudinary.uploader.destroy(public_id)
+
+    # Delete from DB
+    session.delete(photo)
+    session.commit()
+    session.close()
+
+    return jsonify({"message": "Photo deleted"})
 
 
 # -------------------------
