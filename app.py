@@ -85,6 +85,30 @@ def upload_photo():
 
     return jsonify(
         {
+            "image_url": image_url,
+            "photos": [
+                {
+                    "id": p.id,
+                    "url": p.url,
+                    "title": p.title,
+                    "caption": p.caption,
+                    "date": p.date,
+                    "upload_time": p.upload_time.isoformat() if p.upload_time else None,
+                }
+                for p in photos
+            ],
+        }
+    )
+
+
+@app.route("/photos", methods=["GET"])
+def get_photos():
+    session = SessionLocal()
+    photos = session.query(Photo).order_by(Photo.id.desc()).all()
+    session.close()
+
+    return jsonify(
+        {
             "photos": [
                 {
                     "id": p.id,
@@ -98,15 +122,6 @@ def upload_photo():
             ]
         }
     )
-
-
-@app.route("/photos", methods=["GET"])
-def get_photos():
-    session = SessionLocal()
-    photos = session.query(Photo).order_by(Photo.id.desc()).all()
-    session.close()
-
-    return jsonify({"photos": [{"id": p.id, "url": p.url} for p in photos]})
 
 
 @app.route("/photo/<int:photo_id>", methods=["DELETE"])
