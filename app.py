@@ -155,3 +155,27 @@ def debug_photos():
     count = session.query(Photo).count()
     session.close()
     return jsonify({"count": count})
+
+
+# -------------------------
+# Debug Metadata Route
+# -------------------------
+@app.route("/debug/metadata", methods=["GET"])
+def debug_metadata():
+    session = SessionLocal()
+    photos = session.query(Photo).order_by(Photo.id.asc()).all()
+
+    data = [
+        {
+            "id": p.id,
+            "url": p.url,
+            "title": p.title,
+            "caption": p.caption,
+            "date": p.date,
+            "upload_time": p.upload_time.isoformat() if p.upload_time else None,
+        }
+        for p in photos
+    ]
+
+    session.close()
+    return jsonify({"photos": data})
