@@ -6,7 +6,8 @@ import os
 from helper import extract_public_id
 from dotenv import load_dotenv
 
-from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy import create_engine, Column, Integer, String, DateTime
+from datetime import datetime
 from sqlalchemy.orm import sessionmaker, declarative_base
 
 load_dotenv()
@@ -40,6 +41,11 @@ class Photo(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     url = Column(String, nullable=False)
+
+    upload_time = Column(DateTime, default=datetime.utcnow)
+    date = Column(String, nullable=True)
+    title = Column(String, nullable=True)
+    caption = Column(String, nullable=True)
 
 
 # Create tables if they don't exist
