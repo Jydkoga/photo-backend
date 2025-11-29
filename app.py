@@ -123,6 +123,30 @@ def index():
     return jsonify({"message": "Backend is running!"})
 
 
+@app.route("/register", methods=["POST"])
+def register():
+    data = request.get_json() or {}
+    username = data.get("username")
+    password = data.get("password")
+
+    if not username or not password:
+        return jsonify({"error": "Username and password are required"}), 400
+
+    session = SessionLocal()
+    existing = session.query(User).filter_by(username=username).first()
+    if existing:
+        session.close()
+        return jsonify({"error": "Username already exists"}), 400
+
+    password_hash = generate_password_hash(password)
+    user = User(username=username, password_hash=password_hash)
+    session.add(user)
+    session.commit()
+    session.close()
+
+    return jsonify({"message": "User registered successfully"})
+
+
 @app.route("/login", methods=["POST"])
 def login():
     data = request.get_json() or {}
