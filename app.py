@@ -194,6 +194,13 @@ def upload_photo():
 
     file = request.files["file"]
 
+    # Reject files larger than 10MB (Cloudinary free-tier limit)
+    file.seek(0, os.SEEK_END)
+    file_size = file.tell()
+    file.seek(0)
+    if file_size > 10 * 1024 * 1024:
+        return jsonify({"error": "Image too large. Must be under 10MB."}), 400
+
     upload_result = cloudinary.uploader.upload(file, format="jpg")
     image_url = upload_result["secure_url"]
 
